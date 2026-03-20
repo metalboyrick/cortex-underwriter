@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Foundry
+contracts/cache/
+contracts/out/
+contracts/broadcast/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Next.js
+dashboard/.next/
+dashboard/out/
+
+# TypeScript build output
+agent/dist/
+agent/build/
+*.tsbuildinfo
+
+# Testing
+coverage/
+lcov.info
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.classpath
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Secrets / keys
+*.pem
+*.key
+*.p12
+keystore/
+
+# Misc
+.vercel
+.turbo
