@@ -7,7 +7,17 @@ import { InsurerAgent } from './agents/insurer.js';
 import { ValidatorAgent } from './agents/validator.js';
 import { createServer } from './server.js';
 
-const ERC8004_URI = 'ipfs://cortex-underwriter-agent-v1';
+// ERC-8004 Agent Card URIs — served from the agent API server
+// These resolve to real JSON metadata at the live endpoint.
+// IPFS CIDs (for reference, content-addressable):
+//   predictor: bafkreid5dearl5xktnctzgocww2b2hknzlbrsiz63br7heyb7k6qebprme
+//   insurer:   bafkreigm6pfalg4qtcrgz6c6pgudwyqtz7hwgi7fxny5bmeyekdsdch5nm
+//   validator: bafkreickcvw6t3m5b3ni655p7xiktsshsmfbrc2pty634yamuhkx6iu7am
+const ERC8004_URIS = {
+  predictor: `${config.server.baseUrl}/metadata/predictor`,
+  insurer: `${config.server.baseUrl}/metadata/insurer`,
+  validator: `${config.server.baseUrl}/metadata/validator`,
+};
 
 async function main(): Promise<void> {
   console.log('==============================================');
@@ -63,8 +73,9 @@ async function main(): Promise<void> {
   try {
     const isRegistered = await contracts.isAgentRegistered(signerAddress);
     if (!isRegistered) {
-      console.log('[MAIN] Agent not registered, registering...');
-      const tx = await contracts.registerAgent(ERC8004_URI);
+      console.log('[MAIN] Agent not registered, registering with ERC-8004 metadata...');
+      console.log('[MAIN] Predictor URI:', ERC8004_URIS.predictor);
+      const tx = await contracts.registerAgent(ERC8004_URIS.predictor);
       await tx.wait();
       console.log('[MAIN] Agent registered successfully');
     } else {
@@ -74,6 +85,11 @@ async function main(): Promise<void> {
     console.warn('[MAIN] Registration check/attempt failed:', err);
     console.warn('[MAIN] Continuing anyway — contracts may not be deployed yet');
   }
+
+  console.log('[MAIN] ERC-8004 Agent Card URIs:');
+  console.log('  Predictor:', ERC8004_URIS.predictor);
+  console.log('  Insurer:  ', ERC8004_URIS.insurer);
+  console.log('  Validator:', ERC8004_URIS.validator);
 
   // --- 4. Initialize Cortex client ---
 

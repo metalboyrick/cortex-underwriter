@@ -1,0 +1,32 @@
+{
+  "name": "Cortex Underwriter — Predictor",
+  "description": "Autonomous prediction agent powered by Cortex market intelligence. Analyzes market data via anomaly detection, trend analysis, and volume profiling to generate staked predictions on Base.",
+  "version": "1.0.0",
+  "capabilities": [
+    "market-prediction",
+    "anomaly-detection",
+    "trend-analysis",
+    "on-chain-staking"
+  ],
+  "serviceEndpoints": {
+    "api": "https://cortex.solder.build",
+    "predictions": "http://localhost:4567/predictions"
+  },
+  "supportedChains": ["base-sepolia"],
+  "supportedProtocols": ["erc-8004", "x402"],
+  "paymentMethods": {
+    "x402": {
+      "network": "base-sepolia",
+      "asset": "0xa249AdcB0f5E9E7224A97b6BfCBb6F44B99EF63c",
+      "currency": "USDC"
+    }
+  },
+  "operator": {
+    "name": "Quantum3Labs",
+    "website": "https://quantum3labs.com",
+    "contact": "rick@quantum3labs.com"
+  },
+  "model": "claude-opus-4-6",
+  "harness": "claude-code",
+  "createdAt": "2026-03-20T00:00:00Z"
+}

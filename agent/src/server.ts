@@ -1,9 +1,16 @@
 import express from 'express';
 import cors from 'cors';
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { store } from './store.js';
 import { config } from './config.js';
 import type { UnderwriterContracts } from './contracts/index.js';
 import type { PredictorAgent } from './agents/predictor.js';
+
+// Resolve metadata directory relative to this file (src/ -> metadata/)
+const __dirname_resolved = dirname(fileURLToPath(import.meta.url));
+const METADATA_DIR = join(__dirname_resolved, '..', 'metadata');
 
 // x402 payment configuration
 const X402_PAY_TO = '0x8618416B7803dFaE42641Cf56C3f97F21Bf1F253';
@@ -68,6 +75,58 @@ export function createServer(
         ],
       },
     });
+  });
+
+  // --- ERC-8004 Agent Card Metadata ---
+
+  const agentCards: Record<string, string> = {
+    predictor: 'predictor-agent-card.json',
+    insurer: 'insurer-agent-card.json',
+    validator: 'validator-agent-card.json',
+  };
+
+  // Serve individual agent cards: /metadata/predictor, /metadata/insurer, /metadata/validator
+  app.get('/metadata/:agent', (req, res) => {
+    const agent = req.params.agent;
+    const file = agentCards[agent];
+    if (!file) {
+      return res.status(404).json({ error: `Unknown agent: ${agent}` });
+    }
+    try {
+      const card = JSON.parse(readFileSync(join(METADATA_DIR, file), 'utf-8'));
+      res.json(card);
+    } catch (err) {
+      console.error(`[SERVER] Failed to read agent card for ${agent}:`, err);
+      res.status(500).json({ error: 'Failed to read agent card' });
+    }
+  });
+
+  // Serve all agent cards at once
+  app.get('/metadata', (_req, res) => {
+    try {
+      const cards = Object.entries(agentCards).reduce(
+        (acc, [name, file]) => {
+          acc[name] = JSON.parse(readFileSync(join(METADATA_DIR, file), 'utf-8'));
+          return acc;
+        },
+        {} as Record<string, unknown>,
+      );
+      res.json(cards);
+    } catch (err) {
+      console.error('[SERVER] Failed to read agent cards:', err);
+      res.status(500).json({ error: 'Failed to read agent cards' });
+    }
+  });
+
+  // ERC-8004 well-known endpoint
+  app.get('/.well-known/agent-card', (_req, res) => {
+    try {
+      const card = JSON.parse(readFileSync(join(METADATA_DIR, 'predictor-agent-card.json'), 'utf-8'));
+      res.json(card);
+    } catch (err) {
+      console.error('[SERVER] Failed to read default agent card:', err);
+      res.status(500).json({ error: 'Failed to read agent card' });
+    }
   });
 
   // --- Agents ---

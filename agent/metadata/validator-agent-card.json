@@ -1,0 +1,23 @@
+{
+  "name": "Cortex Underwriter — Validator",
+  "description": "Autonomous validation agent that monitors expired predictions and resolves them based on market data. Triggers trust score updates and insurance payouts.",
+  "version": "1.0.0",
+  "capabilities": [
+    "prediction-resolution",
+    "oracle-verification",
+    "trust-score-update",
+    "payout-distribution"
+  ],
+  "serviceEndpoints": {
+    "api": "https://cortex.solder.build"
+  },
+  "supportedChains": ["base-sepolia"],
+  "supportedProtocols": ["erc-8004"],
+  "operator": {
+    "name": "Quantum3Labs",
+    "website": "https://quantum3labs.com"
+  },
+  "model": "claude-opus-4-6",
+  "harness": "claude-code",
+  "createdAt": "2026-03-20T00:00:00Z"
+}

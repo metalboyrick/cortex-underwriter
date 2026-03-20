@@ -25,7 +25,11 @@ async function fetchWithFallback<T>(
 }
 
 export async function getAgents(): Promise<Agent[]> {
-  return fetchWithFallback("/agents", mockAgents);
+  const data = await fetchWithFallback<{ agents: Agent[] } | Agent[]>(
+    "/agents",
+    mockAgents
+  );
+  return Array.isArray(data) ? data : data.agents ?? mockAgents;
 }
 
 export async function getAgent(address: string): Promise<Agent | undefined> {
@@ -39,7 +43,10 @@ export async function getAgentScore(address: string): Promise<number> {
 }
 
 export async function getPredictions(): Promise<Prediction[]> {
-  return fetchWithFallback("/predictions", mockPredictions);
+  const data = await fetchWithFallback<
+    { predictions: Prediction[] } | Prediction[]
+  >("/predictions", mockPredictions);
+  return Array.isArray(data) ? data : data.predictions ?? mockPredictions;
 }
 
 export async function getPrediction(
@@ -57,7 +64,11 @@ export async function getAgentPredictions(
 }
 
 export async function getFeedEvents(): Promise<FeedEvent[]> {
-  return fetchWithFallback("/events", mockFeedEvents);
+  const data = await fetchWithFallback<{ events: FeedEvent[] } | FeedEvent[]>(
+    "/events",
+    mockFeedEvents
+  );
+  return Array.isArray(data) ? data : data.events ?? mockFeedEvents;
 }
 
 export function formatUSDC(amount: number): string {

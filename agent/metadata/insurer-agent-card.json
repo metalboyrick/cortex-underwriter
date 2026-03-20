@@ -1,0 +1,31 @@
+{
+  "name": "Cortex Underwriter — Insurer",
+  "description": "Autonomous insurance agent that evaluates predictions and buys insurance against unreliable agents. Uses independent Cortex analysis to detect disagreements and low trust scores.",
+  "version": "1.0.0",
+  "capabilities": [
+    "risk-assessment",
+    "insurance-underwriting",
+    "trust-evaluation",
+    "counter-analysis"
+  ],
+  "serviceEndpoints": {
+    "api": "https://cortex.solder.build",
+    "trustScores": "http://localhost:4567/api/trust-score"
+  },
+  "supportedChains": ["base-sepolia"],
+  "supportedProtocols": ["erc-8004", "x402"],
+  "paymentMethods": {
+    "x402": {
+      "network": "base-sepolia",
+      "asset": "0xa249AdcB0f5E9E7224A97b6BfCBb6F44B99EF63c",
+      "currency": "USDC"
+    }
+  },
+  "operator": {
+    "name": "Quantum3Labs",
+    "website": "https://quantum3labs.com"
+  },
+  "model": "claude-opus-4-6",
+  "harness": "claude-code",
+  "createdAt": "2026-03-20T00:00:00Z"
+}

@@ -20,6 +20,7 @@ export const config = {
   },
   server: {
     port: parseInt(process.env.PORT || '3001', 10),
+    baseUrl: process.env.AGENT_BASE_URL || `http://localhost:${process.env.PORT || '3001'}`,
   },
   agent: {
     predictionIntervalMs: parseInt(process.env.PREDICTION_INTERVAL_MS || '300000', 10),
