@@ -6,7 +6,9 @@ export const config = {
     url: process.env.RPC_URL || 'https://sepolia.base.org',
   },
   wallet: {
-    privateKey: process.env.PRIVATE_KEY || '',
+    predictorKey: process.env.PREDICTOR_PRIVATE_KEY || process.env.PRIVATE_KEY || '',
+    insurerKey: process.env.INSURER_PRIVATE_KEY || process.env.PRIVATE_KEY || '',
+    validatorKey: process.env.VALIDATOR_PRIVATE_KEY || process.env.PRIVATE_KEY || '',
   },
   contracts: {
     predictionMarket: process.env.PREDICTION_MARKET_ADDRESS || '',

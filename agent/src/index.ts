@@ -23,8 +23,16 @@ async function main(): Promise<void> {
 
   // --- Validate config ---
 
-  if (!config.wallet.privateKey) {
-    console.error('[MAIN] PRIVATE_KEY not set in .env');
+  if (!config.wallet.predictorKey) {
+    console.error('[MAIN] PREDICTOR_PRIVATE_KEY (or PRIVATE_KEY) not set in .env');
+    process.exit(1);
+  }
+  if (!config.wallet.insurerKey) {
+    console.error('[MAIN] INSURER_PRIVATE_KEY (or PRIVATE_KEY) not set in .env');
+    process.exit(1);
+  }
+  if (!config.wallet.validatorKey) {
+    console.error('[MAIN] VALIDATOR_PRIVATE_KEY (or PRIVATE_KEY) not set in .env');
     process.exit(1);
   }
 
@@ -38,13 +46,22 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  // --- 1. Initialize provider + signer ---
+  // --- 1. Initialize provider + per-role signers ---
 
   console.log('[MAIN] Connecting to', config.rpc.url);
   const provider = new ethers.JsonRpcProvider(config.rpc.url);
-  const signer = new ethers.Wallet(config.wallet.privateKey, provider);
-  const signerAddress = await signer.getAddress();
-  console.log('[MAIN] Agent wallet:', signerAddress);
+
+  const predictorSigner = new ethers.Wallet(config.wallet.predictorKey, provider);
+  const insurerSigner = new ethers.Wallet(config.wallet.insurerKey, provider);
+  const validatorSigner = new ethers.Wallet(config.wallet.validatorKey, provider);
+
+  const predictorAddress = await predictorSigner.getAddress();
+  const insurerAddress = await insurerSigner.getAddress();
+  const validatorAddress = await validatorSigner.getAddress();
+
+  console.log('[MAIN] Predictor wallet:', predictorAddress);
+  console.log('[MAIN] Insurer  wallet:', insurerAddress);
+  console.log('[MAIN] Validator wallet:', validatorAddress);
 
   // Verify connection
   try {
@@ -55,31 +72,42 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  // --- 2. Connect to contracts ---
+  // --- 2. Connect to contracts (one instance per role) ---
 
-  const contracts = new UnderwriterContracts(provider, signer, {
+  const contractAddresses = {
     predictionMarket: config.contracts.predictionMarket,
     trustScorer: config.contracts.trustScorer,
     agentRegistry: config.contracts.agentRegistry,
     mockUsdc: config.contracts.mockUsdc,
-  });
+  };
 
-  // --- 3. Register agent if not already registered ---
+  const predictorContracts = new UnderwriterContracts(provider, predictorSigner, contractAddresses);
+  const insurerContracts = new UnderwriterContracts(provider, insurerSigner, contractAddresses);
+  const validatorContracts = new UnderwriterContracts(provider, validatorSigner, contractAddresses);
 
-  try {
-    const isRegistered = await contracts.isAgentRegistered(signerAddress);
-    if (!isRegistered) {
-      console.log('[MAIN] Agent not registered, registering with ERC-8004 metadata...');
-      console.log('[MAIN] Predictor URI:', ERC8004_URIS.predictor);
-      const tx = await contracts.registerAgent(ERC8004_URIS.predictor);
-      await tx.wait();
-      console.log('[MAIN] Agent registered successfully');
-    } else {
-      console.log('[MAIN] Agent already registered');
+  // --- 3. Register each agent role if not already registered ---
+
+  const registrations: Array<{ name: string; address: string; uri: string; contracts: UnderwriterContracts }> = [
+    { name: 'Predictor', address: predictorAddress, uri: ERC8004_URIS.predictor, contracts: predictorContracts },
+    { name: 'Insurer', address: insurerAddress, uri: ERC8004_URIS.insurer, contracts: insurerContracts },
+    { name: 'Validator', address: validatorAddress, uri: ERC8004_URIS.validator, contracts: validatorContracts },
+  ];
+
+  for (const reg of registrations) {
+    try {
+      const isRegistered = await reg.contracts.isAgentRegistered(reg.address);
+      if (!isRegistered) {
+        console.log(`[MAIN] ${reg.name} not registered, registering with ERC-8004 metadata...`);
+        const tx = await reg.contracts.registerAgent(reg.uri);
+        await tx.wait();
+        console.log(`[MAIN] ${reg.name} registered successfully`);
+      } else {
+        console.log(`[MAIN] ${reg.name} already registered`);
+      }
+    } catch (err) {
+      console.warn(`[MAIN] ${reg.name} registration check/attempt failed:`, err);
+      console.warn('[MAIN] Continuing anyway — contracts may not be deployed yet');
     }
-  } catch (err) {
-    console.warn('[MAIN] Registration check/attempt failed:', err);
-    console.warn('[MAIN] Continuing anyway — contracts may not be deployed yet');
   }
 
   console.log('[MAIN] ERC-8004 Agent Card URIs:');
@@ -96,18 +124,18 @@ async function main(): Promise<void> {
 
   const predictor = new PredictorAgent(
     cortex,
-    contracts,
+    predictorContracts,
     config.agent.defaultStakeAmount,
     config.agent.predictionIntervalMs,
   );
 
-  const insurer = new InsurerAgent(cortex, contracts);
+  const insurer = new InsurerAgent(cortex, insurerContracts);
 
-  const validator = new ValidatorAgent(contracts, config.agent.validationIntervalMs);
+  const validator = new ValidatorAgent(validatorContracts, config.agent.validationIntervalMs);
 
   // --- 6. Start API server ---
 
-  const app = createServer(contracts, predictor);
+  const app = createServer(predictorContracts, predictor);
   const server = app.listen(config.server.port, () => {
     console.log('[MAIN] API server running on port', config.server.port);
   });

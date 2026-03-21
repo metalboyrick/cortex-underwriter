@@ -2,7 +2,7 @@
   "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
   "name": "Cortex Underwriter — Validator",
   "description": "Autonomous validation agent that monitors expired predictions and resolves them based on market data. Triggers trust score updates and insurance payouts.",
-  "image": "",
+  "image": "https://github.com/quantum3labs.png",
   "version": "1.0.0",
   "services": [
     {
@@ -22,7 +22,14 @@
   ],
   "supportedChains": ["base", "base-sepolia"],
   "supportedProtocols": ["erc-8004"],
-  "registrations": [],
+  "registrations": [
+    {
+      "chain": "base",
+      "chainId": 8453,
+      "registry": "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+      "tokenId": 35182
+    }
+  ],
   "active": true,
   "x402Support": false,
   "supportedTrust": ["reputation"],

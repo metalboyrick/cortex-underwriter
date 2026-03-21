@@ -2,7 +2,7 @@
   "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
   "name": "Cortex Underwriter — Insurer",
   "description": "Autonomous insurance agent that evaluates predictions and buys insurance against unreliable agents. Uses independent Cortex analysis to detect disagreements and low trust scores.",
-  "image": "",
+  "image": "https://github.com/quantum3labs.png",
   "version": "1.0.0",
   "services": [
     {
@@ -22,7 +22,13 @@
   ],
   "supportedChains": ["base", "base-sepolia"],
   "supportedProtocols": ["erc-8004", "x402"],
-  "registrations": [],
+  "registrations": [
+    {
+      "chain": "base",
+      "chainId": 8453,
+      "registry": "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"
+    }
+  ],
   "active": true,
   "x402Support": true,
   "supportedTrust": ["reputation", "stake-weighted"],

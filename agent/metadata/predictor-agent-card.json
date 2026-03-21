@@ -2,7 +2,7 @@
   "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
   "name": "Cortex Underwriter — Predictor",
   "description": "Autonomous prediction agent powered by Cortex market intelligence. Analyzes market data via anomaly detection, trend analysis, and volume profiling to generate staked predictions on Base.",
-  "image": "",
+  "image": "https://github.com/quantum3labs.png",
   "version": "1.0.0",
   "services": [
     {
@@ -22,7 +22,14 @@
   ],
   "supportedChains": ["base", "base-sepolia"],
   "supportedProtocols": ["erc-8004", "x402"],
-  "registrations": [],
+  "registrations": [
+    {
+      "chain": "base",
+      "chainId": 8453,
+      "registry": "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
+      "tokenId": 35181
+    }
+  ],
   "active": true,
   "x402Support": true,
   "supportedTrust": ["reputation", "stake-weighted"],

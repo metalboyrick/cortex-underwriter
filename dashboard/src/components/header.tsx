@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ConnectionStatus } from "./connection-status";
 
 export function Header() {
   return (
@@ -17,15 +18,7 @@ export function Header() {
           <span className="inline-flex items-center rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
             Base Sepolia
           </span>
-          <div className="flex items-center gap-1.5">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-            </span>
-            <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-400">
-              Live
-            </span>
-          </div>
+          <ConnectionStatus />
         </div>
       </div>
     </header>

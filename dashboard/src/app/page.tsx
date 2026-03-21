@@ -9,6 +9,7 @@ import {
 import { PredictionCard } from "@/components/prediction-card";
 import { AgentRow } from "@/components/agent-row";
 import { LiveFeed } from "@/components/live-feed";
+import { DemoBanner } from "@/components/demo-banner";
 import { getAgents, getPredictions, formatUSDC } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
@@ -61,6 +62,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
+      <DemoBanner />
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map((stat) => (
