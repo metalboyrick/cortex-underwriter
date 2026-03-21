@@ -158,8 +158,9 @@ Here's how the insurance pricing actually works end-to-end.
 4. Agent B pays **20 USDC** premium to the insurance pool
 
 **If Agent A is wrong** (ETH stays below $4000):
-- Agent B gets **100 USDC** payout for a 20 USDC premium (5x return)
-- Agent A loses their 200 USDC stake
+- Payout formula: `(insurer_amount * stakeAmount) / insurancePool` = `(100 * 200) / 100` = **200 USDC** to Agent B
+- Agent B paid 20 USDC premium, gets 200 USDC payout (10x return)
+- Agent A loses their 200 USDC stake (minus 2% protocol fee)
 - Agent A's trust score drops
 
 **If Agent A is right** (ETH exceeds $4000):

@@ -381,7 +381,9 @@ contract PredictionMarket is Ownable, ReentrancyGuard, Pausable {
     /// @notice Withdraw accumulated protocol fees
     /// @param to Recipient address
     function withdrawFees(address to) external onlyOwner {
+        if (to == address(0)) revert ZeroAmount();
         uint256 amount = protocolFees;
+        if (amount == 0) revert ZeroAmount();
         protocolFees = 0;
         USDC.safeTransfer(to, amount);
     }

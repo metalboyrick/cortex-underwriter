@@ -43,9 +43,9 @@ export class InsurerAgent {
         );
 
         for (const event of events) {
-          const args = (event as any).args;
-          if (!args) continue;
-          const [predictionId, predictor, _dataHash, stake] = args;
+          if (!('args' in event)) continue;
+          const { args } = event as ethers.EventLog;
+          const [predictionId, predictor, , stake] = args;
           console.log(
             '[INSURER] New prediction #%d from %s, stake: %s USDC',
             Number(predictionId),
