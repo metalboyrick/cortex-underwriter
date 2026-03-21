@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -45,8 +46,12 @@ export function createServer(
   predictor: PredictorAgent | null,
 ): express.Express {
   const app = express();
-  app.use(cors());
+  app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
   app.use(express.json());
+
+  // Rate limiting
+  app.use('/predict', rateLimit({ windowMs: 60_000, max: 5, message: { error: 'Rate limit exceeded' } }));
+  app.use('/api/', rateLimit({ windowMs: 60_000, max: 10, message: { error: 'Rate limit exceeded' } }));
 
   // --- Health ---
 
@@ -306,10 +311,14 @@ export function createServer(
       return res.status(503).json({ error: 'Predictor agent not running' });
     }
 
+    const ALLOWED_ASSETS = ['ETH', 'WETH', 'USDC', 'cbBTC', 'BTC', 'SOL'];
     const asset = (req.body?.asset as string) || 'ETH';
+    if (!ALLOWED_ASSETS.includes(asset.toUpperCase())) {
+      return res.status(400).json({ error: `Invalid asset. Allowed: ${ALLOWED_ASSETS.join(', ')}` });
+    }
 
     try {
-      console.log('[SERVER] x402 paid prediction triggered for', asset);
+      console.log('[SERVER] Prediction triggered for', asset);
       const prediction = await predictor.predictAsset(asset);
 
       if (!prediction) {

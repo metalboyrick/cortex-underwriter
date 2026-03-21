@@ -43,10 +43,11 @@ contract TrustScorer is Ownable {
 
     constructor() Ownable(msg.sender) {}
 
-    /// @notice Set the PredictionMarket contract address (only callable once or by owner)
+    /// @notice Set the PredictionMarket contract address (one-time only)
     /// @param market The PredictionMarket contract address
     function setPredictionMarket(address market) external onlyOwner {
         if (market == address(0)) revert ZeroAddress();
+        if (predictionMarket != address(0)) revert Unauthorized();
         predictionMarket = market;
         emit PredictionMarketSet(market);
     }
