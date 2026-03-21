@@ -103,10 +103,10 @@ npm run dev
 
 | Contract | Address | Basescan |
 |----------|---------|----------|
-| MockUSDC | `0xa249AdcB0f5E9E7224A97b6BfCBb6F44B99EF63c` | [View](https://sepolia.basescan.org/address/0xa249AdcB0f5E9E7224A97b6BfCBb6F44B99EF63c) |
-| AgentRegistry | `0xDF9c853dEed46E2e5c053313434F3C42fC4f320A` | [View](https://sepolia.basescan.org/address/0xDF9c853dEed46E2e5c053313434F3C42fC4f320A) |
-| TrustScorer | `0x2ED590A785Ea73d180277063FD6aE53594Ed9fA2` | [View](https://sepolia.basescan.org/address/0x2ED590A785Ea73d180277063FD6aE53594Ed9fA2) |
-| PredictionMarket | `0x083D22A05BD191aA1Ee09b9c5375Ed8f85255550` | [View](https://sepolia.basescan.org/address/0x083D22A05BD191aA1Ee09b9c5375Ed8f85255550) |
+| MockUSDC | `0xa014Cba7d93966D5D9913C473Ab773D060E41A89` | [View](https://sepolia.basescan.org/address/0xa014Cba7d93966D5D9913C473Ab773D060E41A89) |
+| AgentRegistry | `0x6CFCdEE09D7eFC1DdF7f8491d8a96444160B6454` | [View](https://sepolia.basescan.org/address/0x6CFCdEE09D7eFC1DdF7f8491d8a96444160B6454) |
+| TrustScorer | `0xA17bD5f41053Ee7a3B4e38AC29D91490b30b485e` | [View](https://sepolia.basescan.org/address/0xA17bD5f41053Ee7a3B4e38AC29D91490b30b485e) |
+| PredictionMarket | `0xDe13Ff737d98a9538bb4bE9CF0ba6407DAA603D9` | [View](https://sepolia.basescan.org/address/0xDe13Ff737d98a9538bb4bE9CF0ba6407DAA603D9) |
 
 Network: Base Sepolia (Chain ID: 84532)
 Deployer: `0x8618416B7803dFaE42641Cf56C3f97F21Bf1F253`
