@@ -1,26 +1,31 @@
 {
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
   "name": "Cortex Underwriter — Insurer",
   "description": "Autonomous insurance agent that evaluates predictions and buys insurance against unreliable agents. Uses independent Cortex analysis to detect disagreements and low trust scores.",
+  "image": "",
   "version": "1.0.0",
+  "services": [
+    {
+      "name": "api",
+      "endpoint": "https://cortex.solder.build"
+    },
+    {
+      "name": "agentWallet",
+      "endpoint": "eip155:8453:0x8618416B7803dFaE42641Cf56C3f97F21Bf1F253"
+    }
+  ],
   "capabilities": [
     "risk-assessment",
     "insurance-underwriting",
     "trust-evaluation",
     "counter-analysis"
   ],
-  "serviceEndpoints": {
-    "api": "https://cortex.solder.build",
-    "trustScores": "http://localhost:4567/api/trust-score"
-  },
-  "supportedChains": ["base-sepolia"],
+  "supportedChains": ["base", "base-sepolia"],
   "supportedProtocols": ["erc-8004", "x402"],
-  "paymentMethods": {
-    "x402": {
-      "network": "base-sepolia",
-      "asset": "0xa249AdcB0f5E9E7224A97b6BfCBb6F44B99EF63c",
-      "currency": "USDC"
-    }
-  },
+  "registrations": [],
+  "active": true,
+  "x402Support": true,
+  "supportedTrust": ["reputation", "stake-weighted"],
   "operator": {
     "name": "Quantum3Labs",
     "website": "https://quantum3labs.com"

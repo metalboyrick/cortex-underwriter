@@ -7,16 +7,22 @@ import { InsurerAgent } from './agents/insurer.js';
 import { ValidatorAgent } from './agents/validator.js';
 import { createServer } from './server.js';
 
-// ERC-8004 Agent Card URIs — served from the agent API server
-// These resolve to real JSON metadata at the live endpoint.
+// ERC-8004 IdentityRegistry on Base mainnet
+// Contract: 0x8004A169FB4a3325136EB29fA0ceB6D2e539a432 (AgentIdentity, symbol: AGENT)
+// Interface: register(string uri) → uint256 tokenId (permissionless ERC-721)
+// Run: agent/scripts/register-erc8004-mainnet.sh --send  (after funding wallet with Base ETH)
+const ERC8004_MAINNET_REGISTRY = '0x8004A169FB4a3325136EB29fA0ceB6D2e539a432';
+
+// Agent card URIs — GitHub-hosted metadata conforming to eip-8004#registration-v1 schema.
+// These are the URIs passed to register() on the mainnet IdentityRegistry.
 // IPFS CIDs (for reference, content-addressable):
 //   predictor: bafkreid5dearl5xktnctzgocww2b2hknzlbrsiz63br7heyb7k6qebprme
 //   insurer:   bafkreigm6pfalg4qtcrgz6c6pgudwyqtz7hwgi7fxny5bmeyekdsdch5nm
 //   validator: bafkreickcvw6t3m5b3ni655p7xiktsshsmfbrc2pty634yamuhkx6iu7am
 const ERC8004_URIS = {
-  predictor: `${config.server.baseUrl}/metadata/predictor`,
-  insurer: `${config.server.baseUrl}/metadata/insurer`,
-  validator: `${config.server.baseUrl}/metadata/validator`,
+  predictor: 'https://raw.githubusercontent.com/metalboyrick/cortex-underwriter/main/agent/metadata/predictor-agent-card.json',
+  insurer: 'https://raw.githubusercontent.com/metalboyrick/cortex-underwriter/main/agent/metadata/insurer-agent-card.json',
+  validator: 'https://raw.githubusercontent.com/metalboyrick/cortex-underwriter/main/agent/metadata/validator-agent-card.json',
 };
 
 async function main(): Promise<void> {

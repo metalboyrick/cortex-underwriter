@@ -83,9 +83,10 @@ export class PredictorAgent {
       console.log('[PREDICTOR] Analyzing', asset, 'via Cortex...');
       const analysis = await this.cortex.getFullAnalysis(asset, 'base');
 
-      // 2. Derive prediction from analysis
+      // 2. Get real price and derive prediction from analysis
+      const realPrice = await this.cortex.getRealPrice(asset);
       const { direction, targetPrice, confidence, reasoning } =
-        this.derivePrediction(asset, analysis);
+        await this.derivePrediction(asset, analysis, realPrice);
 
       if (confidence < 30) {
         console.log('[PREDICTOR] Confidence too low (%d%%), skipping', confidence);
@@ -140,27 +141,33 @@ export class PredictorAgent {
     }
   }
 
-  private derivePrediction(
+  private async derivePrediction(
     asset: string,
     analysis: CortexAnalysis,
-  ): {
+    realPrice: number | null,
+  ): Promise<{
     direction: 'up' | 'down';
     targetPrice: number;
     confidence: number;
     reasoning: string;
-  } {
+  }> {
     const trend = analysis.trend;
     const anomalies = analysis.anomalies;
     const volume = analysis.volume;
 
-    // Base prices for demo (would come from oracle in production)
-    const basePrices: Record<string, number> = {
+    // Use real price from CoinGecko when available, fall back to hardcoded estimates
+    const fallbackPrices: Record<string, number> = {
       ETH: 3500,
       WETH: 3500,
       USDC: 1,
       cbBTC: 85000,
     };
-    const basePrice = basePrices[asset] || 1000;
+    const basePrice = realPrice ?? fallbackPrices[asset] ?? 1000;
+    if (realPrice) {
+      console.log(`[PREDICTOR] Using real price for ${asset}: $${realPrice.toLocaleString()}`);
+    } else {
+      console.log(`[PREDICTOR] Using fallback price for ${asset}: $${basePrice}`);
+    }
 
     let direction: 'up' | 'down' = 'up';
     let confidence = 50;

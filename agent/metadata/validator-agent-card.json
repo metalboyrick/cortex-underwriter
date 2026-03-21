@@ -1,18 +1,31 @@
 {
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
   "name": "Cortex Underwriter — Validator",
   "description": "Autonomous validation agent that monitors expired predictions and resolves them based on market data. Triggers trust score updates and insurance payouts.",
+  "image": "",
   "version": "1.0.0",
+  "services": [
+    {
+      "name": "api",
+      "endpoint": "https://cortex.solder.build"
+    },
+    {
+      "name": "agentWallet",
+      "endpoint": "eip155:8453:0x8618416B7803dFaE42641Cf56C3f97F21Bf1F253"
+    }
+  ],
   "capabilities": [
     "prediction-resolution",
     "oracle-verification",
     "trust-score-update",
     "payout-distribution"
   ],
-  "serviceEndpoints": {
-    "api": "https://cortex.solder.build"
-  },
-  "supportedChains": ["base-sepolia"],
+  "supportedChains": ["base", "base-sepolia"],
   "supportedProtocols": ["erc-8004"],
+  "registrations": [],
+  "active": true,
+  "x402Support": false,
+  "supportedTrust": ["reputation"],
   "operator": {
     "name": "Quantum3Labs",
     "website": "https://quantum3labs.com"

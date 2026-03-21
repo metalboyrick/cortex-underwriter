@@ -111,6 +111,41 @@ npm run dev
 Network: Base Sepolia (Chain ID: 84532)
 Deployer: `0x8618416B7803dFaE42641Cf56C3f97F21Bf1F253`
 
+## ERC-8004 Agent Identity (Base Mainnet)
+
+The Cortex Underwriter agents are registered on the real [ERC-8004](https://eips.ethereum.org/EIPS/eip-8004) IdentityRegistry on Base mainnet. This is the same registry used by other agent projects in the ecosystem.
+
+| Item | Value |
+|------|-------|
+| IdentityRegistry | [`0x8004A169FB4a3325136EB29fA0ceB6D2e539a432`](https://basescan.org/address/0x8004A169FB4a3325136EB29fA0ceB6D2e539a432) |
+| Contract Name | AgentIdentity (symbol: AGENT) |
+| Network | Base Mainnet (Chain ID: 8453) |
+| Interface | `register(string uri) → uint256 tokenId` (permissionless, ERC-721) |
+
+### Agent Card Metadata (ERC-8004 format)
+
+Each agent has a JSON metadata card conforming to the `eip-8004#registration-v1` schema:
+
+| Agent | Metadata URI |
+|-------|-------------|
+| Predictor | [predictor-agent-card.json](https://raw.githubusercontent.com/metalboyrick/cortex-underwriter/main/agent/metadata/predictor-agent-card.json) |
+| Insurer | [insurer-agent-card.json](https://raw.githubusercontent.com/metalboyrick/cortex-underwriter/main/agent/metadata/insurer-agent-card.json) |
+| Validator | [validator-agent-card.json](https://raw.githubusercontent.com/metalboyrick/cortex-underwriter/main/agent/metadata/validator-agent-card.json) |
+
+### Registration
+
+To register the agents on Base mainnet:
+
+```bash
+# Dry run (simulates only)
+./agent/scripts/register-erc8004-mainnet.sh
+
+# Live registration (requires ETH on Base mainnet)
+./agent/scripts/register-erc8004-mainnet.sh --send
+```
+
+Requires ~0.00001 ETH on Base mainnet for all 3 registrations (~$0.04 at current gas prices). Send ETH to the deployer wallet `0x8618416B7803dFaE42641Cf56C3f97F21Bf1F253` on Base (chain 8453).
+
 ## Premium Math: Worked Example
 
 Here's how the insurance pricing actually works end-to-end.
