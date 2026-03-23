@@ -4,7 +4,15 @@
   "description": "On-chain trust scoring and prediction insurance for AI agents on Base",
   "private": true,
   "scripts": {
-    "demo": "bash scripts/demo.sh"
+    "demo": "bash scripts/demo.sh",
+    "record-demo": "npx tsx scripts/record-demo.ts"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^25.5.0",
+    "playwright": "^1.58.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
 }
