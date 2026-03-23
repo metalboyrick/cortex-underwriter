@@ -26,11 +26,15 @@ export default async function AgentDetailPage({
   if (!agent) notFound();
 
   const predictions = await getAgentPredictions(decodedAddress);
+  const totalPredictions = agent.totalPredictions ?? 0;
+  const correctPredictions = agent.correctPredictions ?? 0;
+  const totalStaked = agent.totalStaked ?? 0;
+  const insuranceBought = agent.insuranceBought ?? 0;
+  const insuranceSold = agent.insuranceSold ?? 0;
+
   const accuracy =
-    agent.totalPredictions > 0
-      ? Math.round(
-          (agent.correctPredictions / agent.totalPredictions) * 100
-        )
+    totalPredictions > 0
+      ? Math.round((correctPredictions / totalPredictions) * 100)
       : 0;
 
   return (
@@ -58,24 +62,24 @@ export default async function AgentDetailPage({
           {[
             {
               label: "Total Predictions",
-              value: agent.totalPredictions.toString(),
+              value: totalPredictions.toString(),
             },
             {
               label: "Correct Predictions",
-              value: agent.correctPredictions.toString(),
+              value: correctPredictions.toString(),
             },
             { label: "Accuracy", value: `${accuracy}%` },
             {
               label: "Total Staked",
-              value: formatUSDC(agent.totalStaked),
+              value: formatUSDC(totalStaked),
             },
             {
               label: "Insurance Bought",
-              value: formatUSDC(agent.insuranceBought),
+              value: formatUSDC(insuranceBought),
             },
             {
               label: "Insurance Sold",
-              value: formatUSDC(agent.insuranceSold),
+              value: formatUSDC(insuranceSold),
             },
           ].map((stat) => (
             <Card
