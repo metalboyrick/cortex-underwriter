@@ -1,0 +1,10 @@
+{
+  "name": "cortex-underwriter",
+  "version": "1.0.0",
+  "description": "On-chain trust scoring and prediction insurance for AI agents on Base",
+  "private": true,
+  "scripts": {
+    "demo": "bash scripts/demo.sh"
+  },
+  "license": "MIT"
+}

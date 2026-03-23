@@ -6,6 +6,7 @@ import { PredictorAgent } from './agents/predictor.js';
 import { InsurerAgent } from './agents/insurer.js';
 import { ValidatorAgent } from './agents/validator.js';
 import { createServer } from './server.js';
+import { createUniswapSwapper } from './integrations/uniswap.js';
 
 // Agent card URIs — GitHub-hosted metadata conforming to eip-8004#registration-v1 schema.
 // Registered on ERC-8004 IdentityRegistry (Base mainnet, 0x8004A169FB4a3325136EB29fA0ceB6D2e539a432)
@@ -133,14 +134,31 @@ async function main(): Promise<void> {
 
   const validator = new ValidatorAgent(validatorContracts, config.agent.validationIntervalMs);
 
-  // --- 6. Start API server ---
+  // --- 6. Initialize Uniswap V3 swap integration ---
 
-  const app = createServer(predictorContracts, predictor);
+  const usdcAddress = config.contracts.mockUsdc;
+  const wethAddress = process.env.WETH_ADDRESS || '0x4200000000000000000000000000000000000006';
+
+  console.log('[MAIN] Initializing Uniswap V3 swap integration...');
+  const uniswapSwapper = await createUniswapSwapper(predictorSigner, {
+    wethAddress,
+  });
+
+  // Attach swapper to predictor for post-prediction yield optimization
+  predictor.setUniswapSwapper(uniswapSwapper, usdcAddress, wethAddress);
+
+  console.log('[MAIN] Uniswap V3 integration ready (mode: %s)',
+    process.env.UNISWAP_LIVE === 'true' ? 'LIVE' : 'mock/simulation');
+
+  // --- 7. Start API server ---
+
+  const swapConfig = { usdcAddress, wethAddress };
+  const app = createServer(predictorContracts, predictor, uniswapSwapper, swapConfig);
   const server = app.listen(config.server.port, () => {
     console.log('[MAIN] API server running on port', config.server.port);
   });
 
-  // --- 7. Start agents ---
+  // --- 8. Start agents ---
 
   console.log('[MAIN] Starting agents...');
   await predictor.start();

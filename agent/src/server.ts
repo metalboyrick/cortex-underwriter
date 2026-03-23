@@ -8,6 +8,7 @@ import { store } from './store.js';
 import { config } from './config.js';
 import type { UnderwriterContracts } from './contracts/index.js';
 import type { PredictorAgent } from './agents/predictor.js';
+import type { UniswapSwapper } from './integrations/uniswap.js';
 
 // Resolve metadata directory relative to this file (src/ -> metadata/)
 const __dirname_resolved = dirname(fileURLToPath(import.meta.url));
@@ -44,6 +45,8 @@ function hasPaymentHeader(req: express.Request): boolean {
 export function createServer(
   contracts: UnderwriterContracts | null,
   predictor: PredictorAgent | null,
+  uniswapSwapper?: UniswapSwapper | null,
+  swapConfig?: { usdcAddress: string; wethAddress: string },
 ): express.Express {
   const app = express();
   app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
@@ -77,7 +80,16 @@ export function createServer(
         paidEndpoints: [
           { path: '/api/trust-score/:address', method: 'GET', price: '1000000', unit: 'USDC (6 decimals)' },
           { path: '/api/predict', method: 'POST', price: '10000000', unit: 'USDC (6 decimals)' },
+          { path: '/api/swap', method: 'POST', price: '5000000', unit: 'USDC (6 decimals)' },
         ],
+      },
+      uniswap: {
+        enabled: !!uniswapSwapper,
+        protocol: 'Uniswap V3',
+        action: 'exactInputSingle (USDC -> WETH)',
+        mode: uniswapSwapper ? (process.env.UNISWAP_LIVE === 'true' ? 'live' : 'mock/simulation') : 'disabled',
+        mainnetRouter: '0x2626664c2603336E57B271c5C0b26F421741e481',
+        description: 'Auto-swaps 10% of prediction stakes to WETH for yield optimization',
       },
     });
   });
@@ -337,6 +349,58 @@ export function createServer(
     } catch (err) {
       console.error('[SERVER] x402 predict error:', err);
       res.status(500).json({ error: 'Prediction failed' });
+    }
+  });
+
+  // --- x402 Uniswap Swap Endpoint ---
+
+  app.post('/api/swap', async (req, res) => {
+    if (!hasPaymentHeader(req)) {
+      return res.status(402).json({
+        status: 402,
+        message: 'Payment Required',
+        x402: buildX402Response(
+          req.originalUrl,
+          '5000000', // 5 USDC (6 decimals)
+          'Cortex Underwriter USDC->WETH swap via Uniswap V3',
+        ),
+      });
+    }
+
+    if (!uniswapSwapper || !swapConfig) {
+      return res.status(503).json({
+        error: 'Uniswap swap integration not configured',
+        note: 'Set UNISWAP_LIVE=true and provide USDC/WETH addresses to enable live swaps',
+      });
+    }
+
+    const amountStr = req.body?.amount as string | undefined;
+    // Default: 10 USDC (6 decimals)
+    const amountIn = amountStr ? BigInt(amountStr) : 10_000_000n;
+
+    try {
+      console.log('[SERVER] Uniswap swap triggered: %s USDC -> WETH', (Number(amountIn) / 1e6).toFixed(2));
+      const result = await uniswapSwapper.swapUSDCToWETH(
+        amountIn,
+        swapConfig.usdcAddress,
+        swapConfig.wethAddress,
+      );
+
+      res.json({
+        message: result.mock ? 'Swap simulated (Uniswap V3 not on this testnet)' : 'Swap executed',
+        swap: result,
+        x402: { paid: true },
+        defi: {
+          protocol: 'Uniswap V3',
+          action: 'exactInputSingle',
+          pair: 'USDC/WETH',
+          router: '0x2626664c2603336E57B271c5C0b26F421741e481 (Base mainnet)',
+          composability: 'Premium collection -> yield optimization via automated DEX swap',
+        },
+      });
+    } catch (err) {
+      console.error('[SERVER] Swap error:', err);
+      res.status(500).json({ error: 'Swap failed' });
     }
   });
 

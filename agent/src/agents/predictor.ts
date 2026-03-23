@@ -3,6 +3,7 @@ import { CortexClient } from '../cortex/client.js';
 import { UnderwriterContracts } from '../contracts/index.js';
 import { store } from '../store.js';
 import type { Prediction, CortexAnalysis } from '../types.js';
+import type { UniswapSwapper, SwapResult } from '../integrations/uniswap.js';
 
 const TRACKED_ASSETS = ['ETH', 'WETH', 'USDC', 'cbBTC'];
 const PREDICTION_DURATION_SECS = 24 * 60 * 60; // 24 hours
@@ -14,6 +15,10 @@ export class PredictorAgent {
   private intervalMs: number;
   private timer: ReturnType<typeof setInterval> | null = null;
   private running = false;
+  private uniswapSwapper: UniswapSwapper | null = null;
+  private usdcAddress: string = '';
+  private wethAddress: string = '';
+  private lastSwapResult: SwapResult | null = null;
 
   constructor(
     cortex: CortexClient,
@@ -26,6 +31,21 @@ export class PredictorAgent {
     // USDC has 6 decimals
     this.stakeAmount = BigInt(stakeAmount) * 1_000_000n;
     this.intervalMs = intervalMs;
+  }
+
+  /** Attach a UniswapSwapper for post-prediction yield optimization */
+  setUniswapSwapper(swapper: UniswapSwapper, usdcAddress: string, wethAddress: string): void {
+    this.uniswapSwapper = swapper;
+    this.usdcAddress = usdcAddress;
+    this.wethAddress = wethAddress;
+    console.log('[PREDICTOR] Uniswap V3 swap integration enabled');
+    console.log('[PREDICTOR]   USDC: %s', usdcAddress);
+    console.log('[PREDICTOR]   WETH: %s', wethAddress);
+  }
+
+  /** Get the last swap result (for API exposure) */
+  getLastSwapResult(): SwapResult | null {
+    return this.lastSwapResult;
   }
 
   async start(): Promise<void> {
@@ -133,6 +153,36 @@ export class PredictorAgent {
 
       // 6. Store locally
       store.addPrediction(prediction);
+
+      // 7. Uniswap V3 yield optimization — swap 10% of stake to WETH
+      if (this.uniswapSwapper && this.usdcAddress) {
+        try {
+          const swapAmount = this.stakeAmount / 10n; // 10% of stake
+          console.log(
+            '[PREDICTOR] Yield optimization: swapping %s USDC to WETH via Uniswap V3',
+            ethers.formatUnits(swapAmount, 6),
+          );
+          const swapResult = await this.uniswapSwapper.swapUSDCToWETH(
+            swapAmount,
+            this.usdcAddress,
+            this.wethAddress,
+          );
+          this.lastSwapResult = swapResult;
+
+          if (swapResult.success) {
+            console.log(
+              '[PREDICTOR] Swap %s: %s USDC -> WETH (tx: %s)',
+              swapResult.mock ? 'simulated' : 'executed',
+              swapResult.amountInFormatted,
+              swapResult.txHash?.slice(0, 18) + '...',
+            );
+          } else {
+            console.warn('[PREDICTOR] Swap failed, continuing without yield optimization');
+          }
+        } catch (swapErr) {
+          console.warn('[PREDICTOR] Uniswap swap error (non-fatal):', swapErr);
+        }
+      }
 
       return prediction;
     } catch (err) {
