@@ -21,15 +21,15 @@ export default async function DashboardPage() {
   ]);
 
   const activePredictions = predictions.filter((p) => p.status === "active");
-  const totalStaked = predictions.reduce((sum, p) => sum + p.stake, 0);
+  const totalStaked = predictions.reduce((sum, p) => sum + (p.stake ?? 0), 0);
   const avgTrustScore =
     agents.length > 0
       ? Math.round(
-          agents.reduce((sum, a) => sum + a.trustScore, 0) / agents.length
+          agents.reduce((sum, a) => sum + (a.trustScore ?? 0), 0) / agents.length
         )
       : 0;
   const insuranceVolume = predictions.reduce(
-    (sum, p) => sum + p.insurancePool,
+    (sum, p) => sum + (p.insurancePool ?? 0),
     0
   );
 
